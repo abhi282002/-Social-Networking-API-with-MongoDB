@@ -24,12 +24,16 @@ const userSchema = new Schema(
       trim: true,
       index: true,
     },
+
     bio: {
       type: String,
       required: true,
     },
     avatar: {
-      type: String, //cloudinary Url
+      type: {
+        public_id: String,
+        url: String, //cloudinary url
+      },
       required: true,
     },
     password: {
