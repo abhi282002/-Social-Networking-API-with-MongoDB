@@ -1,6 +1,8 @@
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { User } from "../models/user.model.js";
 const signUpUser = asyncHandler(async (req, res) => {
   const { fullName, email, password, username, bio } = req.body;
 
@@ -22,37 +24,23 @@ const signUpUser = asyncHandler(async (req, res) => {
 
   console.log("req files", req.files);
 
-  const avatarLocalPath = req.files?.avatar[0]?.path;
+  const avatarLocalPath = req.file?.path;
   console.log(avatarLocalPath);
-
-  //const coverImageLocalPath = req.files?.coverImage[0]?.path;
-  let coverImageLocalPath;
-
-  if (
-    req.files &&
-    Array.isArray(req.files.coverImage) &&
-    req.files.coverImage.length > 0
-  ) {
-    coverImageLocalPath = req.files.coverImage[0].path;
-  }
 
   if (!avatarLocalPath) {
     throw new ApiError(400, "Avatar file is required");
   }
 
   const avatar = await uploadOnCloudinary(avatarLocalPath);
-  I;
-
-  const coverImage = await uploadOnCloudinary(coverImageLocalPath);
 
   if (!avatar) {
-    throw new ApiError(400, "Avatar file is required");
+    throw new ApiError(500, "Error in Uploading File! Please try again");
   }
 
   const user = await User.create({
     fullName,
     avatar: avatar.url,
-    coverImage: coverImage?.url || "",
+    bio,
     email,
     password,
     username: username.toLowerCase(),
