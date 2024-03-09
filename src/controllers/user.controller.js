@@ -54,10 +54,12 @@ const signUpUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Avatar file is required");
   }
 
-  const avatar = await uploadOnCloudinary(avatarLocalPath);
+  const avatar = await uploadOnCloudinary(avatarLocalPath).catch((error) => {
+    throw new ApiError(500, "Error while uploading avatar");
+  });
 
-  if (!avatar) {
-    throw new ApiError(500, "Error in Uploading File! Please try again");
+  if (!avatar.public_id) {
+    throw new ApiError(500, "Error while uploading Avatar Please try again");
   }
 
   const user = await User.create({
