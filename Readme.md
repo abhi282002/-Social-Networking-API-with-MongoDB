@@ -1,7 +1,7 @@
 ## Introduction
 
 This is a `SOCIALNETWORKINGAPI` backend project that covers almost the functionalities of post
-and also combines the follow. Find more about his project in the documentation below.
+and also combines the follow functionalities. Find more about his project in the documentation below.
 
 ## Important links
 
