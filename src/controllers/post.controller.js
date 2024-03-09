@@ -96,18 +96,8 @@ const getUserPost = asyncHandler(async (req, res) => {
         localField: "owner",
         foreignField: "_id",
         as: "owner",
-        pipeline: [
-          {
-            $project: {
-              username: 1,
-              fullName: 1,
-              avatar: 1,
-            },
-          },
-        ],
       },
     },
-
     {
       $addFields: {
         ownerDetails: {
@@ -149,10 +139,37 @@ const getAllPost = asyncHandler(async (req, res) => {
         as: "owner",
         pipeline: [
           {
+            $lookup: {
+              from: "subscriptions",
+              localField: "_id",
+              foreignField: "channel",
+              as: "Subscriber",
+            },
+          },
+          {
+            $addFields: {
+              subscriberCount: {
+                $size: "$Subscriber",
+              },
+              isSubscribed: {
+                $cond: {
+                  if: {
+                    $in: [req.user?._id, "$Subscriber.subscriber"],
+                  },
+                  then: true,
+                  else: false,
+                },
+              },
+            },
+          },
+          {
             $project: {
               username: 1,
-              fullName: 1,
               avatar: 1,
+              fullName: 1,
+              bio: 1,
+              isSubscribed: 1,
+              subscriberCount: 1,
             },
           },
         ],

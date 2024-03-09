@@ -2,8 +2,7 @@ import mongoose, { isValidObjectId } from "mongoose";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import { Subscription } from "../routes/subscription.routes.js";
-
+import { Subscription } from "../models/subscription.model.js";
 const toggleSubscription = asyncHandler(async (req, res) => {
   const { channelId } = req.params;
   console.log(req.params);
@@ -120,21 +119,9 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
         localField: "channel",
         foreignField: "_id",
         as: "subscribedChannel",
-        pipeline: [
-          {
-            $project: {
-              username: 1,
-              fullName: 1,
-              avatar: 1,
-              bio: 1,
-            },
-          },
-        ],
       },
     },
-    {
-      $unwind: "$subscribedChannel",
-    },
+
     {
       $addFields: {
         subscribedCount: {
@@ -143,9 +130,19 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
       },
     },
     {
+      $unwind: "$subscribedChannel",
+    },
+
+    {
       $project: {
         _id: 0,
         subscribedCount: 1,
+        subscribedChannel: {
+          username: 1,
+          bio: 1,
+          avatar: 1,
+          fullName: 1,
+        },
       },
     },
   ]);
